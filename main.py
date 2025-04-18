@@ -1,3 +1,4 @@
+from keep_alive import keep_alive
 import logging
 import discord
 from discord.ext import commands
@@ -5,6 +6,8 @@ from discord.ext import commands, tasks
 import os
 import time
 import asyncio
+
+keep_alive()
 
 TOKEN = os.environ["DISCORD_TOKEN"]
 OWNER_ID = int(os.environ.get("OWNER_ID", "0"))
