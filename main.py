@@ -1,4 +1,5 @@
-from keep_alive import keep_aliveimport logging
+from keep_alive import keep_alive
+import logging
 import discord
 from discord.ext import commands
 from discord.ext import commands, tasks
