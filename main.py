@@ -2,7 +2,7 @@ from keep_alive import keep_alive
 import logging
 import discord
 from discord.ext import commands
-from discord.ext import commands, tasks
+from discord.ext import tasks
 import os
 import time
 import asyncio
@@ -176,8 +176,8 @@ rotate_custom_activity.current_index = 0
 async def on_ready():
     print(f'Logged in as {bot.user.name}')
     await bot.change_presence(status=discord.Status.online, activity=discord.Game(name="Kaida AntiSpam💚"))
-    rotate_custom_activity.start()
-    await bot.tree.sync()
+    rotate_custom_activity.start()  # Start rotating the custom activity
+    await bot.tree.sync()  # Sync the slash commands with the Discord API
     print(f'Logged in as {bot.user}')
 
 bot.run(TOKEN)
