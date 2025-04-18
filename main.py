@@ -157,7 +157,7 @@ async def help(ctx: discord.Interaction):
 # -------------------- Custom Activity -------------------- #
 
 custom_messages = [
-    "Kaida Dm ready!💚",
+    "Kaida AntiSpam ready!💚",
     "Made by wasd.",
 ]
 
