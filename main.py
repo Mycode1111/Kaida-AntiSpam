@@ -320,7 +320,7 @@ async def help(ctx: discord.Interaction):
 @bot.event
 async def on_ready():
     # ตั้งกิจกรรมเป็น "Streaming" (แสดง YouTube หรือกิจกรรมอื่นๆ)
-    activity = discord.Streaming(name="Kaida Dm ready!💚", url="https://www.youtube.com/watch?v=bH3vMDK_Hn0")
+    activity = discord.Streaming(name="Kaida AntiSpam ready!💚", url="https://www.youtube.com/watch?v=bH3vMDK_Hn0")
     await bot.change_presence(status=discord.Status.online, activity=activity)  # เปลี่ยนสถานะเป็น Online
 
     print(f"✅ Logged in as {bot.user}")
