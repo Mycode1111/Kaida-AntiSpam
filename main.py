@@ -298,7 +298,7 @@ async def help(ctx: discord.Interaction):
 
     await ctx.response.send_message(embed=embed, ephemeral=True)
 
-@bot.tree.command(name="Test", description="เทสเฉยๆ")
+@bot.tree.command(name="test", description="เทสเฉยๆ")
 async def help(ctx: discord.Interaction):
     """ Command to show all available bot commands """
     embed = discord.Embed(
