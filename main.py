@@ -136,15 +136,15 @@ async def on_message(message):
 
 # -------------------- Admin Commands -------------------- #
 
-@bot.tree.command(name="clear", description="Delete a specified number of messages in the chat")
+@bot.tree.command(name="clear", description="ลบข้อความตามจำนวนที่เลือก")
 async def clear(ctx: discord.Interaction, amount: int):
         """ Command to delete a specified number of messages """
         if ctx.user.id not in ADMIN_USERS:
-            await ctx.response.send_message("❌ You do not have permission to use this command.", ephemeral=True)
+            await ctx.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้!", ephemeral=True)
             return
 
         if amount <= 0 or amount > 100:
-            await ctx.response.send_message("❌ Please specify a number of messages between 1 and 100.", ephemeral=True)
+            await ctx.response.send_message("❌ ใส่ได้แค่เลข 1 ถึง 100 เท่านั้น!", ephemeral=True)
             return
 
         # แจ้งว่าเราจะทำการลบข้อความ และป้องกันการหมดเวลา
@@ -152,14 +152,14 @@ async def clear(ctx: discord.Interaction, amount: int):
 
         try:
             deleted_messages = await ctx.channel.purge(limit=amount)
-            await ctx.followup.send(f"✅ Deleted {len(deleted_messages)} messages.", ephemeral=True)
+            await ctx.followup.send(f"✅ ลบข้อความแล้ว {len(deleted_messages)} ข้อความ", ephemeral=True)
         except Exception as e:
             await ctx.followup.send(f"❌ An error occurred: {str(e)}", ephemeral=True)
 
-@bot.tree.command(name="clear_all", description="Delete all messages in the chat")
+@bot.tree.command(name="clear_all", description="ลบข้อความทั้งหมดในช่อง")
 async def clear_all(interaction: discord.Interaction):
     if interaction.user.id not in ADMIN_USERS:
-        await interaction.response.send_message("❌ You do not have permission to use this command.", ephemeral=True)
+        await interaction.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้!", ephemeral=True)
         return
 
     await interaction.response.defer(ephemeral=True)  # ป้องกัน timeout
@@ -167,25 +167,25 @@ async def clear_all(interaction: discord.Interaction):
     channel = interaction.channel
     if isinstance(channel, discord.TextChannel):
         deleted = await channel.purge()
-        await interaction.followup.send(f"✅ Deleted {len(deleted)} messages.")
+        await interaction.followup.send(f"✅ ลบข้อความแล้ว {len(deleted)} ข้อความ")
     else:
-        await interaction.followup.send("❌ This command can only be used in text channels.")
+        await interaction.followup.send("❌ คำสั่งนี้ใช้ได้เฉพาะช่องข้อความเท่านั้น.")
 
-@bot.tree.command(name="clear_user", description="Delete all messages from a specific user in the chat")
+@bot.tree.command(name="clear_user", description="ลบข้อความทั้งหมดจากผู้ใช้")
 async def clear_user(ctx: discord.Interaction, member: discord.Member):
     """ Command to delete all messages from a specific user """
     if ctx.user.id not in ADMIN_USERS:
-        await ctx.response.send_message("❌ You do not have permission to use this command.", ephemeral=True)
+        await ctx.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้!", ephemeral=True)
         return
 
     deleted_messages = await ctx.channel.purge(limit=100, check=lambda m: m.author == member)
-    await ctx.response.send_message(f"✅ Deleted {len(deleted_messages)} messages from {member.mention}.", ephemeral=True)
+    await ctx.response.send_message(f"✅ ลบข้อความแล้ว {len(deleted_messages)} ข้อความ จาก {member.mention}", ephemeral=True)
 
-@bot.tree.command(name="add_admin", description="Add a user as an admin")
+@bot.tree.command(name="add_admin", description="เพิ่มบทบาทผู้ดูแล")
 async def add_admin(ctx: discord.Interaction, member: discord.Member):
     """ Command for the OWNER to add a new admin """
     if ctx.user.id != OWNER_ID:
-        await ctx.response.send_message("❌ You do not have permission to use this command.", ephemeral=True)
+        await ctx.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้!", ephemeral=True)
         return
 
     global ADMIN_USERS
@@ -196,17 +196,17 @@ async def add_admin(ctx: discord.Interaction, member: discord.Member):
         f.write(f'DISCORD_TOKEN={TOKEN}\nOWNER_ID={OWNER_ID}\nADMIN_USERS={" ".join(map(str, ADMIN_USERS))}\n')
     
     embed = discord.Embed(
-        title="✅ Admin Added Successfully!",
-        description=f"{member.mention} has been granted admin rights for the bot.",
+        title="✅ เพิ่มบทบาทผู้ดูแลเรียบร้อย!",
+        description=f"{member.mention} ได้รับบทบาทผู้ดูแลแล้ว!",
         color=discord.Color.green()
     )
     await ctx.response.send_message(embed=embed, ephemeral=True)
 
-@bot.tree.command(name="remove_admin", description="Remove a user from the admin list")
+@bot.tree.command(name="remove_admin", description="ลบบทบาทผู้ดูแล")
 async def remove_admin(ctx: discord.Interaction, member: discord.Member):
     """ Command for the OWNER to remove an admin """
     if ctx.user.id != OWNER_ID:
-        await ctx.response.send_message("❌ You do not have permission to use this command.", ephemeral=True)
+        await ctx.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้!", ephemeral=True)
         return
 
     global ADMIN_USERS
@@ -218,45 +218,45 @@ async def remove_admin(ctx: discord.Interaction, member: discord.Member):
             f.write(f'DISCORD_TOKEN={TOKEN}\nOWNER_ID={OWNER_ID}\nADMIN_USERS={" ".join(map(str, ADMIN_USERS))}\n')
 
         embed = discord.Embed(
-            title="❌ Admin Removed Successfully!",
-            description=f"{member.mention} has been removed from the admin list.",
+            title="❌ ลบบทบาทผู้ดูแลเรียบร้อย!",
+            description=f"{member.mention} ลบบทบาทผู้ดูแลแล้ว!",
             color=discord.Color.red()
         )
     else:
         embed = discord.Embed(
-            title="⚠️ User Not Found in Admin List",
-            description=f"{member.mention} is not an admin of the bot.",
+            title="⚠️ ไม่พบผู้ใช้ในรายชื่อผู้ดูแล",
+            description=f"{member.mention} ไม่มีบทบาทผู้ดูแล",
             color=discord.Color.orange()
         )
     await ctx.response.send_message(embed=embed, ephemeral=True)
 
-@bot.tree.command(name="admin_list", description="Show the list of admins")
+@bot.tree.command(name="admin_list", description="แสดงรายชื่อผู้ดูแลทั้งหมด")
 async def admin_list(ctx: discord.Interaction):
     """ Command to show the list of admins """
     if ctx.user.id not in ADMIN_USERS:
-        await ctx.response.send_message("❌ You do not have permission to use this command.", ephemeral=True)
+        await ctx.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้!", ephemeral=True)
         return
 
     if ADMIN_USERS:
         admin_names = [f"<@{user_id}>" for user_id in ADMIN_USERS]
         embed = discord.Embed(
-            title="Bot Admin List",
+            title="รายชื่อผู้ดูแล",
             description="\n".join(admin_names),
             color=discord.Color.green()
         )
     else:
         embed = discord.Embed(
-            title="No Admins",
-            description="There are no admins currently in the system.",
+            title="ไม่พบรายชื่อผู้ดูแล",
+            description="ในระบบขณะนี้ไม่มีผู้ดูแลระบบ",
             color=discord.Color.red()
         )
     await ctx.response.send_message(embed=embed, ephemeral=True)
 
-@bot.tree.command(name="log", description="Set the log channel")
+@bot.tree.command(name="log", description="ตั้งค่าช่องสำหรับแจ้งเตือนการบันทึก")
 async def set_log_channel(ctx: discord.Interaction, channel: discord.TextChannel):
     """ Command to set the log channel """
     if ctx.user.id != OWNER_ID:
-        await ctx.response.send_message("❌ You do not have permission to use this command.", ephemeral=True)
+        await ctx.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้!", ephemeral=True)
         return
 
     # Update the .env file to store the log channel ID
@@ -265,8 +265,8 @@ async def set_log_channel(ctx: discord.Interaction, channel: discord.TextChannel
     
     # Confirm the user that the log channel has been set
     embed = discord.Embed(
-        title="✅ Log Channel Set Successfully!",
-        description=f"The log channel has been set to {channel.mention}.",
+        title="✅ ตั้งค่าช่องสำหรับแจ้งเตือนการบันทึกเรียบร้อย!",
+        description=f"ตั้งค่าการบันทึกที่ช่อง {channel.mention}.",
         color=discord.Color.green()
     )
     await ctx.response.send_message(embed=embed, ephemeral=True)
@@ -274,37 +274,55 @@ async def set_log_channel(ctx: discord.Interaction, channel: discord.TextChannel
     # Now, send a notification to the log channel that it has been set
     log_channel = bot.get_channel(channel.id)
     if log_channel:
-        await log_channel.send("🚨 Log channel has been successfully set!")
+        await log_channel.send("🚨 ตั้งค่าช่องนี้เป็นห้องสำหรับแจ้งเตือนการบันทึกเรียบร้อย!")
     else:
-        await ctx.response.send_message("❌ The provided channel could not be found.", ephemeral=True)
+        await ctx.response.send_message("❌ ไม่พบช่อง", ephemeral=True)
 
 
-@bot.tree.command(name="help", description="Show the bot's commands")
+@bot.tree.command(name="help", description="แสดงคำสั่งของบอท")
 async def help(ctx: discord.Interaction):
     """ Command to show all available bot commands """
     embed = discord.Embed(
-        title="Bot Commands",
-        description="Here are the available commands you can use with this bot:",
+        title="คำสั่งบอท",
+        description="นี้คือคำสั่งทั้งหมดของบอท",
         color=discord.Color.blue()
     )
 
-    embed.add_field(name="/clear <amount>", value="Delete a specified number of messages in the chat (Admins only)", inline=False)
-    embed.add_field(name="/clear_all", value="Delete all messages in the chat (Admins only)", inline=False)
-    embed.add_field(name="/clear_user <user>", value="Delete all messages sent by a specific user in the chat (Admins only)", inline=False)
-    embed.add_field(name="/add_admin <user>", value="Add a user as an admin (Owner only)", inline=False)
-    embed.add_field(name="/remove_admin <user>", value="Remove a user from the admin list (Owner only)", inline=False)
-    embed.add_field(name="/admin_list", value="Show the list of admins", inline=False)
-    embed.add_field(name="/log <channel>", value="Set the log channel (Owner only)", inline=False)
-    embed.add_field(name="Warn", value="If the bot doesn't create a role for you, I suggest creating the role yourself: 'Mute", inline=False)
+    embed.add_field(name="/clear <จำนวน>", value="ลบข้อความตามจำนวนที่เลือก (ผู้ดูแลเท่านั้น)", inline=False)
+    embed.add_field(name="/clear_all", value="ลบข้อความทั้งหมดในช่อง (ผู้ดูแลเท่านั้น)", inline=False)
+    embed.add_field(name="/clear_user <ผู้ใช้>", value="ลบข้อความทั้งหมดจากผู้ใช้ (ผู้ดูแลเท่านั้น)", inline=False)
+    embed.add_field(name="/add_admin <ผู้ใช้>", value="เพิ่มบทบาทผู้ดูแล (เจ้าของเท่านั้น)", inline=False)
+    embed.add_field(name="/remove_admin <ผู้ใช้>", value="ลบบทบาทผู้ดูแล (เจ้าของเท่านั้น)", inline=False)
+    embed.add_field(name="/admin_list", value="แสดงรายชื่อผู้ดูแลทั้งหมด", inline=False)
+    embed.add_field(name="/log <ช่อง>", value="ตั้งค่าช่องสำหรับแจ้งเตือนการบันทึก (เจ้าของเท่านั้น)", inline=False)
 
     await ctx.response.send_message(embed=embed, ephemeral=True)
+
+@bot.tree.command(name="Test", description="เทสเฉยๆ")
+async def help(ctx: discord.Interaction):
+    """ Command to show all available bot commands """
+    embed = discord.Embed(
+        title="คำสั่งบอท",
+        description="นี้คือคำสั่งทั้งหมดของบอท",
+        color=discord.Color.blue()
+    )
+
+    embed.add_field(name="/clear <จำนวน>", value="ลบข้อความตามจำนวนที่เลือก (ผู้ดูแลเท่านั้น)", inline=True)
+    embed.add_field(name="/clear_all", value="ลบข้อความทั้งหมดในช่อง (ผู้ดูแลเท่านั้น)", inline=True)
+    embed.add_field(name="/clear_user <ผู้ใช้>", value="ลบข้อความทั้งหมดจากผู้ใช้ (ผู้ดูแลเท่านั้น)", inline=True)
+    embed.add_field(name="/add_admin <ผู้ใช้>", value="เพิ่มบทบาทผู้ดูแล (เจ้าของเท่านั้น)", inline=False)
+    embed.add_field(name="/remove_admin <ผู้ใช้>", value="ลบบทบาทผู้ดูแล (เจ้าของเท่านั้น)", inline=False)
+    embed.add_field(name="/admin_list", value="แสดงรายชื่อผู้ดูแลทั้งหมด", inline=False)
+    embed.add_field(name="/log <ช่อง>", value="ตั้งค่าช่องสำหรับแจ้งเตือนการบันทึก (เจ้าของเท่านั้น)", inline=False)
+
+    await ctx.response.send_message(embed=embed, ephemeral=False)
 
 custom_messages = [
     "Kaida AntiSpam ready!💚",
     "Made by wasd.",
 ]
 
-@tasks.loop(seconds=5)  # เปลี่ยนข้อความทุก 10 วินาที
+@tasks.loop(seconds=5)  # เปลี่ยนข้อความทุก 5 วินาที
 async def rotate_custom_activity():
     current_message = custom_messages[rotate_custom_activity.current_index]
     await bot.change_presence(
