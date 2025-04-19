@@ -69,7 +69,7 @@ async def on_message(message):
             notified_users[user_id] = True  # User has been notified
 
         await message.delete()  # Delete the message the user tried to send
-        
+
         # Countdown while the mute is active
         while remaining_time > 0:
             await asyncio.sleep(1)
@@ -89,14 +89,14 @@ async def on_message(message):
 
     if user_id not in message_times:
         message_times[user_id] = []
-    
+
     message_times[user_id].append(current_time)
     message_times[user_id] = [t for t in message_times[user_id] if current_time - t <= 60]
-    
+
     if len(message_times[user_id]) > MAX_MESSAGES_PER_MINUTE:
         await message.delete()
         cooldown_users[user_id] = current_time + 60  # Set a cooldown of 60 seconds
-        
+
         # Send the first notification message
         if user_id not in notified_users:  # Notify only once
             embed = discord.Embed(
@@ -113,25 +113,25 @@ async def on_message(message):
             muted_role = await message.guild.create_role(name=MUTE_ROLE_NAME, permissions=discord.Permissions(send_messages=False))
             for channel in message.guild.text_channels:
                 await channel.set_permissions(muted_role, send_messages=False)
-        
+
         await message.author.add_roles(muted_role)
         member = message.guild.get_member(user_id)
         if member and member.voice:
             await member.edit(mute=True, deafen=True)
-        
+
         await asyncio.sleep(60)  # Wait for 1 minute
         await message.author.remove_roles(muted_role)
         if member and member.voice:
             await member.edit(mute=False, deafen=False)
-        
+
         del cooldown_users[user_id]
         notified_users.pop(user_id, None)  # Reset notifications after cooldown ends
-        
+
         # Log the spam event with the remaining time
         await log_message(f"🚫 Spam detected! User {message.author.mention} was muted for 60 seconds due to sending too many messages.")
-        
+
         return
-    
+
     await bot.process_commands(message)
 
 # -------------------- Admin Commands -------------------- #
@@ -191,10 +191,10 @@ async def add_admin(ctx: discord.Interaction, member: discord.Member):
     global ADMIN_USERS
     ADMIN_USERS.add(member.id)  # Add the user to the admin set
     os.environ["ADMIN_USERS"] = " ".join(map(str, ADMIN_USERS))  # Update ENV
-    
+
     with open(".env", "w") as f:
         f.write(f'DISCORD_TOKEN={TOKEN}\nOWNER_ID={OWNER_ID}\nADMIN_USERS={" ".join(map(str, ADMIN_USERS))}\n')
-    
+
     embed = discord.Embed(
         title="✅ เพิ่มบทบาทผู้ดูแลเรียบร้อย!",
         description=f"{member.mention} ได้รับบทบาทผู้ดูแลแล้ว!",
@@ -213,7 +213,7 @@ async def remove_admin(ctx: discord.Interaction, member: discord.Member):
     if member.id in ADMIN_USERS:
         ADMIN_USERS.remove(member.id)
         os.environ["ADMIN_USERS"] = " ".join(map(str, ADMIN_USERS))
-        
+
         with open(".env", "w") as f:
             f.write(f'DISCORD_TOKEN={TOKEN}\nOWNER_ID={OWNER_ID}\nADMIN_USERS={" ".join(map(str, ADMIN_USERS))}\n')
 
@@ -262,7 +262,7 @@ async def set_log_channel(ctx: discord.Interaction, channel: discord.TextChannel
     # Update the .env file to store the log channel ID
     with open(".env", "a") as f:
         f.write(f"LOG_CHANNEL_ID={channel.id}\n")
-    
+
     # Confirm the user that the log channel has been set
     embed = discord.Embed(
         title="✅ ตั้งค่าช่องสำหรับแจ้งเตือนการบันทึกเรียบร้อย!",
@@ -317,27 +317,12 @@ async def help(ctx: discord.Interaction):
 
     await ctx.response.send_message(embed=embed, ephemeral=False)
 
-custom_messages = [
-    "Kaida AntiSpam ready!💚",
-    "Made by wasd.",
-]
-
-@tasks.loop(seconds=5)  # เปลี่ยนข้อความทุก 5 วินาที
-async def rotate_custom_activity():
-    current_message = custom_messages[rotate_custom_activity.current_index]
-    await bot.change_presence(
-        activity=discord.CustomActivity(name=current_message),
-        status=discord.Status.online
-    )
-    rotate_custom_activity.current_index = (rotate_custom_activity.current_index + 1) % len(custom_messages)
-
-rotate_custom_activity.current_index = 0
-
 @bot.event
 async def on_ready():
-    # รีเฟรชคำสั่งใหม่ให้กับ Discord API
-    rotate_custom_activity.start()  # เริ่มหมุนข้อความ
-    await bot.tree.sync()
-    print(f'Logged in as {bot.user}')
+    # ตั้งกิจกรรมเป็น "Streaming" (แสดง YouTube หรือกิจกรรมอื่นๆ)
+    activity = discord.Streaming(name="Kaida Dm ready!💚", url="https://www.youtube.com/watch?v=bH3vMDK_Hn0")
+    await bot.change_presence(status=discord.Status.online, activity=activity)  # เปลี่ยนสถานะเป็น Online
+
+    print(f"✅ Logged in as {bot.user}")
 
 bot.run(TOKEN)
